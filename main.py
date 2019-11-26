@@ -2,6 +2,7 @@ import mido
 import psutil
 import time
 import subprocess
+from gpuinfo import GPUInfo
 outport = mido.open_output('Launchpad S:Launchpad S MIDI 1')
 
 core_positions = [
@@ -19,6 +20,8 @@ ram_positions = [0,1,2,3,4,5,6,7]
 
 ssd_positions = [10,11,12,13,14,15,16,17]
 hdd_positions = [20,21,22,23,24,25,26,27]
+temp_positions = [78, 68, 58, 48, 38, 28, 18, 8]
+gpu_positions = [30, 31, 32, 33, 34, 35, 36, 37]
 
 def all_on():
     outport.send(mido.Message.from_hex('B0 00 7F'))
@@ -49,6 +52,24 @@ def print_disk():
         if 10*(hdd_position-20) < hdd*0.75:
             enable_led(str(hdd_position).zfill(2), '3F')
 
+def print_temp():
+    temp = int(psutil.sensors_temperatures()['coretemp'][0].current)
+    if temp > 80:
+        max_temp = temp - 80
+    elif temp > 88:
+        max_temp = 8
+    else:
+        max_temp = 0
+    for i in range(max_temp):
+        enable_led(str(temp_positions[i]).zfill(2), '3F')
+    
+def print_gpu():
+    gpu = GPUInfo.gpu_usage()[0][0]
+    for gpu_position in gpu_positions:
+        if 10*(gpu_position-30) + 1 < gpu*0.75:
+            enable_led(str(gpu_position).zfill(2), '3C')
+        
+
 def get_disk_space():
     diskinfo_raw = subprocess.Popen("df -h", shell=True,stdout=subprocess.PIPE)
     output = diskinfo_raw.communicate()[0]
@@ -70,8 +91,9 @@ def map_to_core(value):
 
 while True:
     print_disk()
-    get_disk_space()
     print_cores()
     print_ram()
+    print_temp()
+    print_gpu()
     time.sleep(5)
     all_off()
