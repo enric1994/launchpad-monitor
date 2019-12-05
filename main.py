@@ -56,9 +56,9 @@ def print_temp():
     temp = int(psutil.sensors_temperatures()['coretemp'][0].current)
     if temp > 80:
         max_temp = temp - 80
-    elif temp > 88:
-        max_temp = 8
-    else:
+    if temp > 88:
+        max_temp = 7
+    if temp <=80:
         max_temp = 0
     for i in range(max_temp):
         enable_led(str(temp_positions[i]).zfill(2), '3F')
