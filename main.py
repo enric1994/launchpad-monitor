@@ -90,10 +90,13 @@ def map_to_core(value):
         return 4
 
 while True:
-    print_cores()
-    print_ram()
-    print_temp()
-    print_gpu()
-    print_disk()
-    time.sleep(3)
-    all_off()
+    try:
+        print_cores()
+        print_ram()
+        print_temp()
+        print_gpu()
+        print_disk()
+        time.sleep(3)
+        all_off()
+    except:
+        time.sleep(2)
